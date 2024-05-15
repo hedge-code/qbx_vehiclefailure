@@ -26,7 +26,7 @@ local healthPetrolTankDeltaScaled = 0.0
 local fixMessagePos = math.random(repairCfg.fixMessageCount)
 local noFixMessagePos = math.random(repairCfg.noFixMessageCount)
 local tireBurstMaxNumber = cfg.randomTireBurstInterval * 1200;
-local DamageComponents = {
+local DAMAGE_COMPONENTS = {
     'radiator',
     'axle',
     'clutch',
@@ -38,7 +38,7 @@ local DamageComponents = {
 
 local function damageRandomComponent()
 	local dmgFctr = math.random() + math.random(0, 2)
-	local randomComponent = DamageComponents[math.random(1, #DamageComponents)]
+	local randomComponent = DAMAGE_COMPONENTS[math.random(#DAMAGE_COMPONENTS)]
 	local randomDamage = (math.random() + math.random(0, 1)) * dmgFctr
 	exports.qbx_mechanicjob:SetVehicleStatus(qbx.getVehiclePlate(vehicle), randomComponent, exports.qbx_mechanicjob:GetVehicleStatus(qbx.getVehiclePlate(vehicle), randomComponent) - randomDamage)
 end
@@ -64,13 +64,11 @@ local function cleanVehicle(veh)
 		SetVehicleUndriveable(veh, false)
 		WashDecalsFromVehicle(veh, 1.0)
 		TriggerServerEvent('qb-vehiclefailure:server:removewashingkit', veh)
-		ClearAllPedProps(cache.ped)
-		ClearPedTasks(cache.ped)
 	else -- if canceled
 		exports.qbx_core:Notify(locale('error.failed_notification'), 'error')
-		ClearAllPedProps(cache.ped)
-		ClearPedTasks(cache.ped)
 	end
+    ClearAllPedProps(cache.ped)
+    ClearPedTasks(cache.ped)
 end
 
 ---@param vehModel number
@@ -122,7 +120,7 @@ local function repairVehicle(veh, engineHealth, itemName, timeLowerBound, timeUp
 	}) then -- if completed
 		exports.qbx_core:Notify(locale('success.repaired_veh'))
 		SetVehicleEngineHealth(veh, engineHealth)
-		SetVehicleEngineOn(veh, true, false)
+		SetVehicleEngineOn(veh, true, false, false)
 		SetVehicleTyreFixed(veh, 0)
 		SetVehicleTyreFixed(veh, 1)
 		SetVehicleTyreFixed(veh, 2)
@@ -313,7 +311,7 @@ RegisterNetEvent('iens:repaira', function()
 		return
 	end
 	vehicle = cache.vehicle
-	SetVehicleDirtLevel(vehicle)
+	SetVehicleDirtLevel(vehicle, 0)
 	SetVehicleUndriveable(vehicle, false)
 	WashDecalsFromVehicle(vehicle, 1.0)
 	exports.qbx_core:Notify(locale('success.repaired_veh'))
@@ -321,7 +319,7 @@ RegisterNetEvent('iens:repaira', function()
 	healthBodyLast = 1000.0
 	healthEngineLast = 1000.0
 	healthPetrolTankLast = 1000.0
-	SetVehicleEngineOn(vehicle, true, false)
+	SetVehicleEngineOn(vehicle, true, false, false)
 end)
 
 RegisterNetEvent('iens:besked', function()
@@ -355,7 +353,7 @@ RegisterNetEvent('iens:repair', function()
 	SetVehiclePetrolTankHealth(vehicle, 750.0)
 	healthEngineLast = cfg.cascadingFailureThreshold + 5
 	healthPetrolTankLast = 750.0
-	SetVehicleEngineOn(vehicle, true, false )
+	SetVehicleEngineOn(vehicle, true, false, false)
 	SetVehicleOilLevel(vehicle, (GetVehicleOilLevel(vehicle) / 3) - 0.5)
 	exports.qbx_core:Notify(locale(('success.fix_message_%s'):format(fixMessagePos)))
 	fixMessagePos += 1
